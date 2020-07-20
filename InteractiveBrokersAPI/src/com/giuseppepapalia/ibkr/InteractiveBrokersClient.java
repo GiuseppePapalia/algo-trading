@@ -5,8 +5,6 @@ import com.ib.client.EClientSocket;
 import com.ib.client.EReader;
 import com.ib.client.EReaderSignal;
 import com.ib.client.Order;
-import com.ib.client.OrderType;
-import com.ib.client.Types.Action;
 
 public class InteractiveBrokersClient {
 
@@ -44,27 +42,7 @@ public class InteractiveBrokersClient {
 
 	}
 
-	public int placeOrder(String symbol, int quantity, Action action) {
-		client.reqIds(-1);
-		int orderID = api.getCurrentOrderId() + 1;
-
-		Contract contract = new Contract();
-		contract.symbol(symbol);
-
-		Order order = new Order();
-		order.account(api.getPortfolio().getAccID());
-		order.action(action);
-		order.totalQuantity(quantity);
-		order.orderId(orderID);
-		order.orderType(OrderType.LMT);
-
-		client.placeOrder(orderID, contract, order);
-
-		return orderID;
-	}
-
-	public int placeLongBracketOrder(String symbol, double quantity, double entryLimitPrice, double takeProfitLimitPrice, double stopLossPrice) {
-		Contract contract = InteractiveBrokersFactory.createStock(symbol);
+	public int placeLongBracketOrder(Contract contract, double quantity, double entryLimitPrice, double takeProfitLimitPrice, double stopLossPrice) {
 
 		client.reqIds(-1);
 		int orderID = api.getCurrentOrderId() + 1;
