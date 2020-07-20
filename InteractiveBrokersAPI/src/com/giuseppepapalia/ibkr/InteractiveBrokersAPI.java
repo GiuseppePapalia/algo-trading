@@ -41,10 +41,18 @@ public class InteractiveBrokersAPI implements EWrapper {
 	protected int currentOrderId = -1;
 	private boolean callbackComplete;
 	private Portfolio portfolio;
+	private Watchlist watchlist;
 
 	public InteractiveBrokersAPI() {
 		readerSignal = new EJavaSignal();
 		clientSocket = new EClientSocket(this, readerSignal);
+	}
+
+	public void watchStock(int reqId, Contract contract) {
+		if (watchlist == null) {
+			watchlist = new Watchlist();
+		}
+		watchlist.watchStock(reqId, contract);
 	}
 
 	public int getCurrentOrderId() {
@@ -274,7 +282,7 @@ public class InteractiveBrokersAPI implements EWrapper {
 	// ! [realtimebar]
 	@Override
 	public void realtimeBar(int reqId, long time, double open, double high, double low, double close, long volume, double wap, int count) {
-		System.out.println("RealTimeBars. " + reqId + " - Time: " + time + ", Open: " + open + ", High: " + high + ", Low: " + low + ", Close: " + close + ", Volume: " + volume + ", Count: " + count + ", WAP: " + wap);
+		watchlist.update(reqId, time, open, high, low, close, volume, wap, count);
 	}
 
 	// ! [realtimebar]

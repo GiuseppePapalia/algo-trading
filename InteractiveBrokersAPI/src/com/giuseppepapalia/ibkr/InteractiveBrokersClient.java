@@ -8,7 +8,7 @@ import com.ib.client.Order;
 
 public class InteractiveBrokersClient {
 
-	private EClientSocket client;
+	protected EClientSocket client;
 	private InteractiveBrokersAPI api;
 
 	public InteractiveBrokersClient(boolean liveTrading, String accID) {
@@ -40,6 +40,13 @@ public class InteractiveBrokersClient {
 		// client.reqAccountUpdates(true, accID);
 		client.reqPnL(17001, accID, "");
 
+	}
+
+	public void watchStock(Contract contract) {
+		client.reqIds(-1);
+		int orderID = api.getCurrentOrderId() + 1;
+		api.watchStock(orderID, contract);
+		client.reqRealTimeBars(orderID, contract, 5, "TRADES", true, null);
 	}
 
 	public int placeLongBracketOrder(Contract contract, double quantity, double entryLimitPrice, double takeProfitLimitPrice, double stopLossPrice) {
