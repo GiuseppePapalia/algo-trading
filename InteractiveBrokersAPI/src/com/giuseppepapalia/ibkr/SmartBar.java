@@ -2,7 +2,9 @@ package com.giuseppepapalia.ibkr;
 
 import java.util.Date;
 
-public final class SmartBar {
+import com.giuseppepapalia.ibkr.constants.GFormatter;
+
+public final class SmartBar implements Comparable<SmartBar> {
 
 	private final Date startTime;
 	private final double open;
@@ -30,10 +32,6 @@ public final class SmartBar {
 		return volume;
 	}
 
-	public boolean isGreen() {
-		return close > open;
-	}
-
 	public double getPercentChange() {
 		return ((close / open) * 100) - 100;
 	}
@@ -56,6 +54,20 @@ public final class SmartBar {
 
 	public double getLow() {
 		return low;
+	}
+
+	/*
+	 * To sort charts by the time of the bar
+	 */
+	@Override
+	public int compareTo(SmartBar bar) {
+		return bar.getStartTime().compareTo(getStartTime());
+	}
+
+	@Override
+	public String toString() {
+		return startTime + "\n" + GFormatter.formatPercent(getPercentChange()) + "%\nO: " + open + "\tC: " + close + "\nH: " + high + "\tL: " + low + "\nVol: " + volume;
+
 	}
 
 }

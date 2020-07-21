@@ -51,6 +51,7 @@ public class InteractiveBrokersAPI implements EWrapper {
 	public void watchStock(int reqId, Contract contract) {
 		if (watchlist == null) {
 			watchlist = new Watchlist();
+			new Thread(watchlist).start();
 		}
 		watchlist.watchStock(reqId, contract);
 	}
@@ -282,7 +283,7 @@ public class InteractiveBrokersAPI implements EWrapper {
 	// ! [realtimebar]
 	@Override
 	public void realtimeBar(int reqId, long time, double open, double high, double low, double close, long volume, double wap, int count) {
-		watchlist.update(reqId, time, open, high, low, close, volume, wap, count);
+		watchlist.updateLiveChart(reqId, time, open, high, low, close, volume, wap, count);
 	}
 
 	// ! [realtimebar]
@@ -668,7 +669,7 @@ public class InteractiveBrokersAPI implements EWrapper {
 	// ! [tickbytickbidask]
 	@Override
 	public void tickByTickBidAsk(int reqId, long time, double bidPrice, double askPrice, int bidSize, int askSize, TickAttribBidAsk tickAttribBidAsk) {
-		System.out.println(EWrapperMsgGenerator.tickByTickBidAsk(reqId, time, bidPrice, askPrice, bidSize, askSize, tickAttribBidAsk));
+		watchlist.updateQuote(reqId, time, bidPrice, askPrice, bidSize, askSize);
 	}
 	// ! [tickbytickbidask]
 

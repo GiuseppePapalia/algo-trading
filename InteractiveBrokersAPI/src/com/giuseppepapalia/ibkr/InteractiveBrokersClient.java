@@ -10,6 +10,7 @@ public class InteractiveBrokersClient {
 
 	protected EClientSocket client;
 	private InteractiveBrokersAPI api;
+	private int id;
 
 	public InteractiveBrokersClient(boolean liveTrading, String accID) {
 		api = new InteractiveBrokersAPI();
@@ -39,28 +40,24 @@ public class InteractiveBrokersClient {
 		client.reqPositions();
 		// client.reqAccountUpdates(true, accID);
 		client.reqPnL(17001, accID, "");
-
+		id = api.getCurrentOrderId();
 	}
 
 	public void watchStock(Contract contract) {
-		client.reqIds(-1);
-		int orderID = api.getCurrentOrderId() + 1;
-		api.watchStock(orderID, contract);
-		client.reqRealTimeBars(orderID, contract, 5, "TRADES", true, null);
+		api.watchStock(id, contract);
+		client.reqRealTimeBars(id, contract, 5, "TRADES", true, null);
+		client.reqTickByTickData(id + 1, contract, "BidAsk", 0, false);
+		id += 2;
 	}
 
-	public int placeLongBracketOrder(Contract contract, double quantity, double entryLimitPrice, double takeProfitLimitPrice, double stopLossPrice) {
-
-		client.reqIds(-1);
-		int orderID = api.getCurrentOrderId() + 1;
-
-		LongBracketOrder order = new LongBracketOrder(orderID, quantity, entryLimitPrice, takeProfitLimitPrice, stopLossPrice);
+	public void placeLongBracketOrder(Contract contract, double quantity, double entryLimitPrice, double takeProfitLimitPrice, double stopLossPrice) {
+		LongBracketOrder order = new LongBracketOrder(id, quantity, entryLimitPrice, takeProfitLimitPrice, stopLossPrice);
 
 		for (Order o : order.getOrders()) {
 			client.placeOrder(o.orderId(), contract, o);
 		}
 
-		return orderID;
+		id += 3;
 	}
 
 	private void addShutdownHook() {
