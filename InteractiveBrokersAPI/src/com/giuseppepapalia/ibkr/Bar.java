@@ -4,7 +4,7 @@ import java.util.Date;
 
 import com.giuseppepapalia.ibkr.constants.GFormatter;
 
-public final class SmartBar implements Comparable<SmartBar> {
+public final class Bar implements Comparable<Bar> {
 
 	private final Date startTime;
 	private final double open;
@@ -14,7 +14,7 @@ public final class SmartBar implements Comparable<SmartBar> {
 	private final long volume;
 	private final double wap;
 
-	public SmartBar(Date startTime, double open, double close, double high, double low, long volume, double wap) {
+	public Bar(Date startTime, double open, double close, double high, double low, long volume, double wap) {
 		this.startTime = startTime;
 		this.volume = volume;
 		this.open = open;
@@ -60,7 +60,7 @@ public final class SmartBar implements Comparable<SmartBar> {
 	 * To sort charts by the time of the bar
 	 */
 	@Override
-	public int compareTo(SmartBar bar) {
+	public int compareTo(Bar bar) {
 		return bar.getStartTime().compareTo(getStartTime());
 	}
 

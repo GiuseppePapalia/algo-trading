@@ -12,16 +12,16 @@ public class Watchlist implements Runnable {
 
 	private Map<Integer, Contract> idMap;
 	private Map<Contract, Stock> watchlist;
-	private Map<Contract, List<SmartBar>> history;
+	private Map<Contract, List<Bar>> history;
 
 	public Watchlist() {
 		idMap = new HashMap<Integer, Contract>();
-		history = new HashMap<Contract, List<SmartBar>>();
+		history = new HashMap<Contract, List<Bar>>();
 	}
 
 	public void watchStock(int reqId, Contract contract) {
 		idMap.put(reqId, contract);
-		history.put(contract, new ArrayList<SmartBar>());
+		history.put(contract, new ArrayList<Bar>());
 	}
 
 	public void updateQuote(int reqId, long time, double bidPrice, double askPrice, int bidSize, int askSize) {
@@ -33,7 +33,7 @@ public class Watchlist implements Runnable {
 	}
 
 	public void updateLiveChart(int reqId, long time, double open, double high, double low, double close, long volume, double wap, int count) {
-		watchlist.get(idMap.get(reqId)).getLiveChart().addBar(new SmartBar(GFormatter.parseLong(time), open, close, high, low, volume, wap));
+		watchlist.get(idMap.get(reqId)).getLiveChart().addBar(new Bar(GFormatter.parseLong(time), open, close, high, low, volume, wap));
 	}
 
 	@Override

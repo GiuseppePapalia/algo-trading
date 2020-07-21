@@ -4,21 +4,21 @@ import java.util.List;
 
 import com.ib.client.Contract;
 
-public class SmartChart {
+public class Chart {
 
-	private List<SmartBar> chart;
+	private List<Bar> chart;
 	private Contract underlying;
 
-	public SmartChart(Contract underlying, List<SmartBar> chart) {
+	public Chart(Contract underlying, List<Bar> chart) {
 		this.underlying = underlying;
 		this.chart = chart;
 	}
 
-	public void addBar(SmartBar bar) {
+	public void addBar(Bar bar) {
 		chart.add(bar);
 	}
 
-	public List<SmartBar> getChart() {
+	public List<Bar> getChart() {
 		return chart;
 	}
 

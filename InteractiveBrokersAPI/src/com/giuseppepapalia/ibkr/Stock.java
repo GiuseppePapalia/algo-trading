@@ -5,10 +5,10 @@ import com.ib.client.Contract;
 public class Stock {
 
 	private final Quote quote;
-	private final SmartChart liveChart;
+	private final Chart liveChart;
 	private final Contract contract;
 
-	public Stock(Contract contract, Quote quote, SmartChart liveChart) {
+	public Stock(Contract contract, Quote quote, Chart liveChart) {
 		this.contract = contract;
 		this.quote = quote;
 		this.liveChart = liveChart;
@@ -18,7 +18,7 @@ public class Stock {
 		return quote;
 	}
 
-	public SmartChart getLiveChart() {
+	public Chart getLiveChart() {
 		return liveChart;
 	}
 
