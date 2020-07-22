@@ -2,28 +2,20 @@ package com.giuseppepapalia.ibkr;
 
 import java.util.List;
 
-import com.ib.client.Contract;
-
 public class Chart {
 
-	private List<Bar> chart;
-	private Contract underlying;
+	private List<DetailedBar> chart;
 
-	public Chart(Contract underlying, List<Bar> chart) {
-		this.underlying = underlying;
+	public Chart(List<DetailedBar> chart) {
 		this.chart = chart;
 	}
 
-	public void addBar(Bar bar) {
+	public void addBar(DetailedBar bar) {
 		chart.add(bar);
 	}
 
-	public List<Bar> getChart() {
+	public List<DetailedBar> getChart() {
 		return chart;
-	}
-
-	public Contract getUnderlying() {
-		return underlying;
 	}
 
 }

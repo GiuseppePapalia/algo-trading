@@ -1,6 +1,8 @@
 package com.giuseppepapalia.ibkr;
 
 import java.text.DecimalFormat;
+import java.text.ParseException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -42,10 +44,27 @@ public class InteractiveBrokersAPI implements EWrapper {
 	private boolean callbackComplete;
 	private Portfolio portfolio;
 	private Watchlist watchlist;
+	private HistoricalData historicalData;
+	private Map<Integer, Boolean> longRequestCompletion;
 
 	public InteractiveBrokersAPI() {
+		longRequestCompletion = new HashMap<Integer, Boolean>();
 		readerSignal = new EJavaSignal();
 		clientSocket = new EClientSocket(this, readerSignal);
+	}
+
+	public void createLongRequest(int reqId) {
+		longRequestCompletion.put(reqId, false);
+	}
+
+	public Chart getHistoricalData(int reqId, Contract c) {
+		if (historicalData == null) {
+			historicalData = new HistoricalData();
+		}
+		historicalData.createChart(reqId, c);
+		while (!longRequestCompletion.get(reqId))
+			;
+		return historicalData.getChart(reqId);
 	}
 
 	public void watchStock(int reqId, Contract contract) {
@@ -248,14 +267,18 @@ public class InteractiveBrokersAPI implements EWrapper {
 	// ! [historicaldata]
 	@Override
 	public void historicalData(int reqId, Bar bar) {
-		System.out.println("HistoricalData. " + reqId + " - Date: " + bar.time() + ", Open: " + bar.open() + ", High: " + bar.high() + ", Low: " + bar.low() + ", Close: " + bar.close() + ", Volume: " + bar.volume() + ", Count: " + bar.count() + ", WAP: " + bar.wap());
+		try {
+			historicalData.getChart(reqId).addBar(new DetailedBar(bar));
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
 	}
 	// ! [historicaldata]
 
 	// ! [historicaldataend]
 	@Override
 	public void historicalDataEnd(int reqId, String startDateStr, String endDateStr) {
-		System.out.println("HistoricalDataEnd. " + reqId + " - Start Date: " + startDateStr + ", End Date: " + endDateStr);
+		longRequestCompletion.put(reqId, true);
 	}
 	// ! [historicaldataend]
 

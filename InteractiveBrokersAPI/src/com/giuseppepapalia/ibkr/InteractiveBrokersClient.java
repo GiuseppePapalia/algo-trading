@@ -1,5 +1,9 @@
 package com.giuseppepapalia.ibkr;
 
+import java.util.Date;
+
+import com.giuseppepapalia.ibkr.constants.BarSize;
+import com.giuseppepapalia.ibkr.constants.GFormatter;
 import com.ib.client.Contract;
 import com.ib.client.EClientSocket;
 import com.ib.client.EReader;
@@ -58,6 +62,14 @@ public class InteractiveBrokersClient {
 		}
 
 		id += 3;
+	}
+
+	public Chart getHistoricalData(Contract contract, Date endDate, String duration, BarSize barSize) {
+		int reqId = id;
+		id++;
+		api.createLongRequest(reqId);
+		client.reqHistoricalData(reqId, contract, GFormatter.TIMESTAMP.format(endDate), duration, barSize.toString(), "TRADES", 1, 1, false, null);
+		return api.getHistoricalData(reqId, contract);
 	}
 
 	private void addShutdownHook() {

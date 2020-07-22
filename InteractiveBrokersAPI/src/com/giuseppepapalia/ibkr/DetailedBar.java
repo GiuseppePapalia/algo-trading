@@ -1,10 +1,12 @@
 package com.giuseppepapalia.ibkr;
 
+import java.text.ParseException;
 import java.util.Date;
 
 import com.giuseppepapalia.ibkr.constants.GFormatter;
+import com.ib.client.Bar;
 
-public final class Bar implements Comparable<Bar> {
+public final class DetailedBar implements Comparable<DetailedBar> {
 
 	private final Date startTime;
 	private final double open;
@@ -14,7 +16,11 @@ public final class Bar implements Comparable<Bar> {
 	private final long volume;
 	private final double wap;
 
-	public Bar(Date startTime, double open, double close, double high, double low, long volume, double wap) {
+	public DetailedBar(Bar bar) throws ParseException {
+		this(GFormatter.TIMESTAMP.parse(bar.time()), bar.open(), bar.close(), bar.high(), bar.low(), bar.volume(), bar.wap());
+	}
+
+	public DetailedBar(Date startTime, double open, double close, double high, double low, long volume, double wap) {
 		this.startTime = startTime;
 		this.volume = volume;
 		this.open = open;
@@ -60,7 +66,7 @@ public final class Bar implements Comparable<Bar> {
 	 * To sort charts by the time of the bar
 	 */
 	@Override
-	public int compareTo(Bar bar) {
+	public int compareTo(DetailedBar bar) {
 		return bar.getStartTime().compareTo(getStartTime());
 	}
 
