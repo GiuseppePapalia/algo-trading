@@ -1,5 +1,6 @@
 package com.giuseppepapalia.ibkr;
 
+import java.util.Collections;
 import java.util.List;
 
 public class Chart {
@@ -15,6 +16,7 @@ public class Chart {
 	}
 
 	public List<DetailedBar> getChart() {
+		Collections.sort(chart);
 		return chart;
 	}
 
