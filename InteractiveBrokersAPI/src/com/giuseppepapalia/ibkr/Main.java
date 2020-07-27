@@ -13,7 +13,7 @@ public class Main {
 		// 5, 165.14, 168.14, 162.14);
 		Chart chart = client.getHistoricalData(InteractiveBrokersFactory.createStock("TSLA"),
 				new Date(System.currentTimeMillis()), "1 D", BarSize.ONE_MIN);
-		System.out.println(chart.getChart());
+		Graph.plotTimeSeries(chart);
 		System.exit(0);
 	}
 
