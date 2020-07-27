@@ -14,6 +14,8 @@ public class Main {
 		Chart chart = client.getHistoricalData(InteractiveBrokersFactory.createStock("TSLA"),
 				new Date(System.currentTimeMillis()), "1 D", BarSize.ONE_MIN);
 		Graph.plotTimeSeries(chart);
+		Graph.toCSV();
+		Graph.plot();
 		System.exit(0);
 	}
 
