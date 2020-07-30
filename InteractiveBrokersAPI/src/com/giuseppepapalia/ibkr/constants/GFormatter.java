@@ -7,7 +7,7 @@ import java.util.Date;
 
 public class GFormatter {
 
-	public static SimpleDateFormat TIMESTAMP = new SimpleDateFormat("yyyyMMdd hh:mm:ss");
+	public static SimpleDateFormat TIMESTAMP = new SimpleDateFormat("yyyyMMdd HH:mm:ss");
 
 	public static String formatPercent(double number) {
 		DecimalFormat df = new DecimalFormat("#,##0.000");
