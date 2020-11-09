@@ -17,7 +17,8 @@ public final class DetailedBar implements Comparable<DetailedBar> {
 	private final double wap;
 
 	public DetailedBar(Bar bar) throws ParseException {
-		this(GFormatter.TIMESTAMP.parse(bar.time()), bar.open(), bar.close(), bar.high(), bar.low(), bar.volume(), bar.wap());
+		this(GFormatter.TIMESTAMP.parse(bar.time()), bar.open(), bar.close(), bar.high(), bar.low(), bar.volume(),
+				bar.wap());
 	}
 
 	public DetailedBar(Date startTime, double open, double close, double high, double low, long volume, double wap) {
@@ -72,7 +73,8 @@ public final class DetailedBar implements Comparable<DetailedBar> {
 
 	@Override
 	public String toString() {
-		return startTime + "\n" + GFormatter.formatPercent(getPercentChange()) + "%\nO: " + open + "\tC: " + close + "\nH: " + high + "\tL: " + low + "\nVol: " + volume;
+		return startTime + "\n" + GFormatter.formatPercent(getPercentChange()) + "%\nO: " + open + "\tC: " + close
+				+ "\nH: " + high + "\tL: " + low + "\nVol: " + volume;
 
 	}
 
