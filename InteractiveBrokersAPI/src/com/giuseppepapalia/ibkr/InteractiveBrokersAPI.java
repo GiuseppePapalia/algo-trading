@@ -67,9 +67,9 @@ public class InteractiveBrokersAPI implements EWrapper {
 		return historicalData.getChart(reqId);
 	}
 
-	public void watchStock(int reqId, Contract contract) {
+	public void watchStock(int reqId, Contract contract, InteractiveBrokersClient client) {
 		if (watchlist == null) {
-			watchlist = new Watchlist();
+			watchlist = new Watchlist(portfolio, client);
 			new Thread(watchlist).start();
 		}
 		watchlist.watchStock(reqId, contract);
@@ -268,7 +268,7 @@ public class InteractiveBrokersAPI implements EWrapper {
 	@Override
 	public void historicalData(int reqId, Bar bar) {
 		try {
-			historicalData.getChart(reqId).addBar(new DetailedBar(bar));
+			historicalData.getChart(reqId).addBar(new BarData(bar));
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}

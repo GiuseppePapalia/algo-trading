@@ -6,7 +6,7 @@ import java.util.Date;
 import com.giuseppepapalia.ibkr.constants.GFormatter;
 import com.ib.client.Bar;
 
-public final class DetailedBar implements Comparable<DetailedBar> {
+public final class BarData implements Comparable<BarData> {
 
 	private final Date startTime;
 	private final double open;
@@ -16,11 +16,11 @@ public final class DetailedBar implements Comparable<DetailedBar> {
 	private final long volume;
 	private final double wap;
 
-	public DetailedBar(Bar bar) throws ParseException {
+	public BarData(Bar bar) throws ParseException {
 		this(GFormatter.TIMESTAMP.parse(bar.time()), bar.open(), bar.close(), bar.high(), bar.low(), bar.volume(), bar.wap());
 	}
 
-	public DetailedBar(Date startTime, double open, double close, double high, double low, long volume, double wap) {
+	public BarData(Date startTime, double open, double close, double high, double low, long volume, double wap) {
 		this.startTime = startTime;
 		this.volume = volume;
 		this.open = open;
@@ -66,7 +66,7 @@ public final class DetailedBar implements Comparable<DetailedBar> {
 	 * To sort charts by the time of the bar
 	 */
 	@Override
-	public int compareTo(DetailedBar bar) {
+	public int compareTo(BarData bar) {
 		return bar.getStartTime().compareTo(getStartTime());
 	}
 

@@ -48,7 +48,7 @@ public class InteractiveBrokersClient {
 	}
 
 	public void watchStock(Contract contract) {
-		api.watchStock(id, contract);
+		api.watchStock(id, contract, this);
 		client.reqRealTimeBars(id, contract, 5, "TRADES", true, null);
 		client.reqTickByTickData(id + 1, contract, "BidAsk", 0, false);
 		id += 2;

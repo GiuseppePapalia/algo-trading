@@ -1,6 +1,5 @@
 package com.giuseppepapalia.ibkr;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -19,7 +18,7 @@ public class HistoricalData {
 
 	public void createChart(int reqId, Contract c) {
 		idMap.put(reqId, c);
-		historicalData.put(c, new Chart(new ArrayList<DetailedBar>()));
+		historicalData.put(c, new Chart());
 	}
 
 	public Chart getChart(int reqId) {
