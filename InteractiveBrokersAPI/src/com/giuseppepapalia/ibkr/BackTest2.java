@@ -6,9 +6,7 @@ import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.FileUtils;
@@ -17,7 +15,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import com.giuseppepapalia.ibkr.constants.BarSize;
 import com.ib.client.Contract;
 
-public class BackTest {
+public class BackTest2 {
 
 	private Contract testStock;
 	private double ownedShares;
@@ -31,7 +29,7 @@ public class BackTest {
 	private double takeProfit;
 	private double cutLoss;
 
-	public BackTest(InteractiveBrokersClient client, String symbol, double startingCash, double buyThreshold, double sellThreshold, double takeProfit, double cutLoss) {
+	public BackTest2(InteractiveBrokersClient client, String symbol, double startingCash, double buyThreshold, double sellThreshold, double takeProfit, double cutLoss) {
 		testStock = InteractiveBrokersFactory.createStock(symbol);
 		ownedShares = 0;
 		tradeCount = 0;
@@ -45,7 +43,7 @@ public class BackTest {
 	}
 
 	public double[] test(Date endDate, String duration) {
-		double[] result = new double[2];
+		double[] result = new double[4];
 		Chart chart = client.getHistoricalData(testStock, endDate, duration, BarSize.ONE_MIN);
 		for (Pair<BarData, ChartData> data : chart.getChart()) {
 			if (buyFlag(data)) {
@@ -61,6 +59,8 @@ public class BackTest {
 		System.out.println("FINISH after " + tradeCount + " trades: $" + portfolioCash + " FROM: $" + startingCash);
 		result[0] = portfolioCash;
 		result[1] = tradeCount;
+		result[2] = chart.getChart().get(0).getLeft().getOpen();
+		result[3] = chart.getChart().get(chart.getChart().size() - 1).getLeft().getClose();
 		return result;
 	}
 
@@ -110,56 +110,48 @@ public class BackTest {
 	@SuppressWarnings("deprecation")
 	public static void main(String args[]) throws ParseException, IOException {
 		InteractiveBrokersClient client = new InteractiveBrokersClient(false, "DU1919358");
-		String ticker = "SPY";
-//		String dates[] = { "2017/01/01 00:00:00", "2018/03/03 00:00:00", "2019/06/06 00:00:00" };
-//		String dates[] = { "2017/06/14 00:00:00", "2018/08/25 00:00:00", "2019/11/02 00:00:00" };
-		String dates[] = { "2020/04/14 00:00:00", "2020/04/14 00:00:00", "2020/04/14 00:00:00" };
+		DecimalFormat df = new DecimalFormat("##0.00");
+		String[] tickers = { "SPY", "VOO", "IVV" };
+		String dates[] = { "2020/03/31 00:00:00", "2019/06/30 00:00:00", "2018/09/30 00:00:00", "2017/12/31 00:00:00" };
 
-		// double[] takeProfits = { 1.01, 1.02, 1.03, 1.04 };
-		// double[] cutLoss = { 0.995, 0.99, 0.98, 0.97 };
-		// double[] buyThreshold = { 0.05, 0.1, 0.15, 0.2, 0.3 };
-		double[] takeProfits = { 1.03 };
-		double[] cutLoss = { 0.99 };
-		double[] buyThreshold = { 0.1 };
-		// double[] sellThreshold = { -0.05, -0.1, -0.15, -0.2, -0.30 };
 		File file = new File("C:/TEMP/results.csv");
 		if (!file.exists()) {
 			file.createNewFile();
 		}
 
-		String output = "Buy Threshold,Sell Threshold,Take Profit,Cut Losses,PnL %,Trades Executed,PnL after Comission\n";
+		String output = "End Date,Ticker,Profit %,Trade Count,Default Return\n";
 		FileUtils.writeStringToFile(file, output);
 
-		Map<Double[], Double[]> results = new HashMap<>();
+		for (String ticker : tickers) {
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+			Date startDates[] = { sdf.parse(dates[0]), sdf.parse(dates[1]), sdf.parse(dates[2]), sdf.parse(dates[3]) };
 
-		for (int i = 0; i < takeProfits.length; i++) {
-			for (int j = 0; j < cutLoss.length; j++) {
-				for (int k = 0; k < buyThreshold.length; k++) {
-					// for (int l = 0; l < sellThreshold.length; l++) {
-					SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-					Date startDates[] = { sdf.parse(dates[0]), sdf.parse(dates[1]), sdf.parse(dates[2]) };
-					double finalCash = 5000;
-					int totalTradeCount = 0;
-					for (Date date : startDates) {
-						System.out.println("Results for " + ticker + " starting from " + date);
-						BackTest backTest = new BackTest(client, ticker, 5000, buyThreshold[k], -buyThreshold[k], takeProfits[i], cutLoss[j]);
-						int period = 9;
-						for (int m = 0; m < period; m++) {
-							double[] result = backTest.test(new Date(date.getTime() - TimeUnit.DAYS.toMillis(m * 10)), "10 D");
-							finalCash += result[0] - 5000; // add pnl
-							totalTradeCount += result[1]; // add trade count
-						}
+			for (Date date : startDates) {
+				double finalCash = 5000;
+				int totalTradeCount = 0;
+				double openPrice = 0;
+				double endPrice = 0;
+				BackTest2 backTest = new BackTest2(client, ticker, 5000, 0.1, -0.1, 1.03, 0.99);
+				int period = 9;
+				for (int m = 0; m < period; m++) {
+					double[] result = backTest.test(new Date(date.getTime() - TimeUnit.DAYS.toMillis(m * 10)), "10 D");
+					finalCash += result[0] - 5000; // add pnl
+					totalTradeCount += result[1]; // add trade count'
+					if (m == 0) {
+						openPrice = result[2];
+					} else if (m == 8) {
+						endPrice = result[3];
 					}
-					DecimalFormat df = new DecimalFormat("##0.00");
-					double pctChange = (finalCash / 5000 * 100 - 100);
-					double pctChangeAfterCom = ((finalCash - totalTradeCount) / 5000 * 100 - 100);
-					results.put(new Double[] { buyThreshold[k], -buyThreshold[k], takeProfits[i], cutLoss[j] }, new Double[] { pctChange, (double) totalTradeCount });
-					System.out.println("BT: " + buyThreshold[k] + "\tST: " + -buyThreshold[k] + "\tTP: " + takeProfits[i] + "\tCL: " + cutLoss[j] + "\n% Change: " + pctChange + "\n");
-					output += buyThreshold[k] + "," + -buyThreshold[k] + "," + takeProfits[i] + "," + cutLoss[j] + "," + df.format(pctChange) + "," + totalTradeCount + "," + df.format(pctChangeAfterCom) + "\n";
-					FileUtils.writeStringToFile(file, output);
 				}
+
+				double pctChange = (finalCash / 5000 * 100 - 100);
+				double pctChangeDefault = (openPrice / endPrice - 1) * 100;
+				output += date + "," + ticker + "," + df.format(pctChange) + "," + totalTradeCount + "," + df.format(pctChangeDefault) + "\n";
+				FileUtils.writeStringToFile(file, output);
 			}
 		}
+
+	}
 
 //		SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 //		Date startDates[] = { sdf.parse(dates[0]), sdf.parse(dates[1]), sdf.parse(dates[2]) };
@@ -177,6 +169,4 @@ public class BackTest {
 //				System.out.println("% Change: " + (finalCash / 5000 * 100 - 100));
 //			}
 //		}
-	}
-
 }
