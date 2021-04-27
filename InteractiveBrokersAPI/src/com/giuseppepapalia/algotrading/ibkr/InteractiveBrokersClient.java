@@ -4,7 +4,7 @@ import java.util.Date;
 
 import com.giuseppepapalia.algotrading.ibkr.constants.BarSize;
 import com.giuseppepapalia.algotrading.ibkr.constants.GFormatter;
-import com.giuseppepapalia.algotrading.ibkr.order.LongBracketOrder;
+import com.giuseppepapalia.algotrading.ibkr.orderflow.LongBracketOrderFlow;
 import com.ib.client.Contract;
 import com.ib.client.EClientSocket;
 import com.ib.client.EReader;
@@ -67,9 +67,9 @@ public class InteractiveBrokersClient {
 	}
 
 	public void placeLongBracketOrder(Contract contract, double quantity, double entryLimitPrice, double takeProfitLimitPrice, double stopLossPrice) {
-		LongBracketOrder order = new LongBracketOrder(id, quantity, entryLimitPrice, takeProfitLimitPrice, stopLossPrice);
+		LongBracketOrderFlow order = new LongBracketOrderFlow(id, quantity, entryLimitPrice, takeProfitLimitPrice, stopLossPrice);
 
-		for (Order o : order.getOrders()) {
+		for (Order o : order.getOrderFlow()) {
 			client.placeOrder(o.orderId(), contract, o);
 		}
 
