@@ -27,4 +27,8 @@ public class OrderFlow {
 		return orderFlow;
 	}
 
+	public int getSize() {
+		return orderFlow.size();
+	}
+
 }

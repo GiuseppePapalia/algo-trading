@@ -42,19 +42,15 @@ public class InteractiveBrokersAPI implements EWrapper {
 	private EClientSocket clientSocket;
 	protected int currentOrderId = -1;
 	private boolean callbackComplete;
-	private Portfolio portfolio;
-	private Watchlist watchlist;
+	private InteractiveBrokersCoreInterface core;
 	private HistoricalData historicalData;
 	private Map<Integer, Boolean> longRequestCompletion;
 
-	public InteractiveBrokersAPI() {
+	public InteractiveBrokersAPI(InteractiveBrokersCoreInterface core) {
+		this.core = core;
 		longRequestCompletion = new HashMap<Integer, Boolean>();
 		readerSignal = new EJavaSignal();
 		clientSocket = new EClientSocket(this, readerSignal);
-	}
-
-	public Watchlist getWatchlist() {
-		return watchlist;
 	}
 
 	public void createLongRequest(int reqId) {
@@ -71,10 +67,6 @@ public class InteractiveBrokersAPI implements EWrapper {
 		return historicalData.getChart(reqId);
 	}
 
-	public void watchStock(int reqId, Contract contract) {
-		watchlist.watchStock(reqId, contract);
-	}
-
 	public int getCurrentOrderId() {
 		return currentOrderId;
 	}
@@ -85,18 +77,6 @@ public class InteractiveBrokersAPI implements EWrapper {
 
 	public EReaderSignal getSignal() {
 		return readerSignal;
-	}
-
-	public void initWatchlist(InteractiveBrokersClient client) {
-		watchlist = new Watchlist(portfolio, client);
-	}
-
-	public void initPorfolio(String accID) {
-		portfolio = new Portfolio(accID);
-	}
-
-	public Portfolio getPortfolio() {
-		return portfolio;
 	}
 
 	public boolean callbackComplete() {
@@ -167,21 +147,27 @@ public class InteractiveBrokersAPI implements EWrapper {
 	// ! [updateaccountvalue]
 	@Override
 	public void updateAccountValue(String key, String value, String currency, String accountName) {
-		System.out.println("UpdateAccountValue. Key: " + key + ", Value: " + value + ", Currency: " + currency + ", AccountName: " + accountName);
+		switch (key) {
+		case "CashBalance":
+			core.updateCashBalance(Double.parseDouble(value));
+			return;
+		default:
+			return;
+		}
 	}
 	// ! [updateaccountvalue]
 
 	// ! [updateportfolio]
 	@Override
 	public void updatePortfolio(Contract contract, double position, double marketPrice, double marketValue, double averageCost, double unrealizedPNL, double realizedPNL, String accountName) {
-		System.out.println("UpdatePortfolio. " + contract.symbol() + ", " + contract.secType() + " @ " + contract.exchange() + ": Position: " + position + ", MarketPrice: " + marketPrice + ", MarketValue: " + marketValue + ", AverageCost: " + averageCost + ", UnrealizedPNL: " + unrealizedPNL + ", RealizedPNL: " + realizedPNL + ", AccountName: " + accountName);
+		core.updatePosition(contract, position, averageCost);
 	}
 	// ! [updateportfolio]
 
 	// ! [updateaccounttime]
 	@Override
 	public void updateAccountTime(String timeStamp) {
-		System.out.println("UpdateAccountTime. Time: " + timeStamp + "\n");
+		// System.out.println("UpdateAccountTime. Time: " + timeStamp + "\n");
 	}
 	// ! [updateaccounttime]
 
@@ -203,7 +189,7 @@ public class InteractiveBrokersAPI implements EWrapper {
 	// ! [contractdetails]
 	@Override
 	public void contractDetails(int reqId, ContractDetails contractDetails) {
-		System.out.println(EWrapperMsgGenerator.contractDetails(reqId, contractDetails));
+		core.updateOptionChain(contractDetails.contract());
 	}
 
 	// ! [contractdetails]
@@ -310,7 +296,7 @@ public class InteractiveBrokersAPI implements EWrapper {
 	// ! [realtimebar]
 	@Override
 	public void realtimeBar(int reqId, long time, double open, double high, double low, double close, long volume, double wap, int count) {
-		watchlist.updateLiveChart(reqId, time, open, high, low, close, volume, wap, count);
+		core.updateLiveChart(reqId, time, open, high, low, close, volume, wap, count);
 	}
 
 	// ! [realtimebar]
@@ -355,8 +341,7 @@ public class InteractiveBrokersAPI implements EWrapper {
 	// ! [position]
 	@Override
 	public void position(String account, Contract contract, double pos, double avgCost) {
-		System.out.println(portfolio);
-		portfolio.position(contract, (int) pos, avgCost);
+		core.updatePosition(contract, pos, avgCost);
 	}
 	// ! [position]
 
@@ -479,6 +464,8 @@ public class InteractiveBrokersAPI implements EWrapper {
 	@Override
 	public void securityDefinitionOptionalParameter(int reqId, String exchange, int underlyingConId, String tradingClass, String multiplier, Set<String> expirations, Set<Double> strikes) {
 		System.out.println("Security Definition Optional Parameter. Request: " + reqId + ", Trading Class: " + tradingClass + ", Multiplier: " + multiplier + " \n");
+		System.out.println(expirations);
+		System.out.println(strikes);
 	}
 	// ! [securityDefinitionOptionParameter]
 
@@ -645,11 +632,7 @@ public class InteractiveBrokersAPI implements EWrapper {
 	// ! [pnl]
 	@Override
 	public void pnl(int reqId, double dailyPnL, double unrealizedPnL, double realizedPnL) {
-		System.out.println("pnl");
-		if (portfolio != null) {
-			portfolio.setRealizedPnL(realizedPnL);
-			portfolio.setUnrealizedPnL(unrealizedPnL);
-		}
+		core.updatePortfolioPnL(unrealizedPnL, realizedPnL);
 	}
 	// ! [pnl]
 
@@ -697,7 +680,7 @@ public class InteractiveBrokersAPI implements EWrapper {
 	// ! [tickbytickbidask]
 	@Override
 	public void tickByTickBidAsk(int reqId, long time, double bidPrice, double askPrice, int bidSize, int askSize, TickAttribBidAsk tickAttribBidAsk) {
-		watchlist.updateQuote(reqId, time, bidPrice, askPrice, bidSize, askSize);
+		core.updateQuote(reqId, time, bidPrice, askPrice, bidSize, askSize);
 	}
 	// ! [tickbytickbidask]
 

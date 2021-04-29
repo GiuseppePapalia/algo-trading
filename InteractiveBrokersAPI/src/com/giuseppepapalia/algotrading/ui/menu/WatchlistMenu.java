@@ -14,7 +14,7 @@ import javax.swing.JTextField;
 
 import com.giuseppepapalia.algotrading.ibkr.InteractiveBrokersClient;
 import com.giuseppepapalia.algotrading.ibkr.InteractiveBrokersFactory;
-import com.giuseppepapalia.algotrading.ibkr.Watchlist;
+import com.giuseppepapalia.algotrading.ibkr.InteractiveBrokersCore;
 import com.giuseppepapalia.algotrading.ui.util.IconFactory;
 import com.ib.client.Contract;
 
@@ -27,7 +27,7 @@ public class WatchlistMenu extends JDialog {
 
 	private DefaultListModel<String> model;
 	private JList<String> list;
-	private Watchlist watchlist;
+	private InteractiveBrokersCore watchlist;
 	private InteractiveBrokersClient client;
 	private JTextField txtTicker;
 

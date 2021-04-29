@@ -11,7 +11,17 @@ public class InteractiveBrokersFactory {
 		contract.symbol(symbol);
 		contract.secType("STK");
 		contract.currency(Currency.USD.toString());
-		contract.exchange("SMART");
+		contract.primaryExch("ISLAND");
+		return contract;
+	}
+
+	public static Contract createMockOption(String symbol) {
+		Contract contract = new Contract();
+		contract.symbol(symbol);
+		contract.secType("OPT");
+		contract.currency(Currency.USD.toString());
+		contract.primaryExch("ISLAND");
+		contract.exchange("ISLAND");
 		return contract;
 	}
 

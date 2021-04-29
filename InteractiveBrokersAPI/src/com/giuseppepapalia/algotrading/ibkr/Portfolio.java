@@ -9,6 +9,7 @@ public class Portfolio {
 
 	private final String accID;
 	private List<Position> positions;
+	private CurrencyValue cashBalance;
 	private CurrencyValue unrealizedPnL;
 	private CurrencyValue realizedPnL;
 
@@ -17,6 +18,11 @@ public class Portfolio {
 		positions = new ArrayList<Position>();
 		unrealizedPnL = new CurrencyValue(0);
 		realizedPnL = new CurrencyValue(0);
+		cashBalance = new CurrencyValue(0);
+	}
+
+	public void setCashBalance(double cashBalance) {
+		this.cashBalance = new CurrencyValue(cashBalance);
 	}
 
 	public void setUnrealizedPnL(double unrealizedPnL) {
@@ -27,7 +33,10 @@ public class Portfolio {
 		this.realizedPnL = new CurrencyValue(realizedPnL);
 	}
 
-	public void position(Contract contract, double quantity, double avgCost) {
+	/*
+	 * Returns the position which was updated, null if the position no longer exists 
+	 */
+	public Position updatePosition(Contract contract, double quantity, double avgCost) {
 		boolean foundExistingPosition = false;
 		Position toRemove = null;
 		for (Position position : positions) {
@@ -38,6 +47,7 @@ public class Portfolio {
 				} else {
 					position.setQuantity(quantity);
 					position.setAvgCost(avgCost);
+					return position;
 				}
 				break;
 			}
@@ -45,11 +55,16 @@ public class Portfolio {
 
 		if (toRemove != null) {
 			positions.remove(toRemove);
+			return null;
 		}
 
 		if (!foundExistingPosition && quantity != 0) {
-			positions.add(new Position(contract, quantity, avgCost));
+			Position position = new Position(contract, quantity, avgCost);
+			positions.add(position);
+			return position;
 		}
+
+		return null;
 	}
 
 	public List<Position> getPositions() {
@@ -64,13 +79,17 @@ public class Portfolio {
 		return realizedPnL;
 	}
 
+	public CurrencyValue getCashBalance() {
+		return cashBalance;
+	}
+
 	public String getAccID() {
 		return accID;
 	}
 
 	@Override
 	public String toString() {
-		return positions.toString();
+		return "Cash: " + cashBalance + "\nPositions: " + positions.toString();
 	}
 
 }

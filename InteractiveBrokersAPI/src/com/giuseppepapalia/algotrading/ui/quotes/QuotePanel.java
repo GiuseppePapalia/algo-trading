@@ -9,7 +9,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 
 import com.giuseppepapalia.algotrading.ibkr.CurrencyValue;
-import com.giuseppepapalia.algotrading.ibkr.Watchlist;
+import com.giuseppepapalia.algotrading.ibkr.InteractiveBrokersCore;
 import com.giuseppepapalia.algotrading.ui.util.Settings;
 
 public class QuotePanel extends JPanel {
@@ -21,7 +21,7 @@ public class QuotePanel extends JPanel {
 	private JLabel lblClosePL;
 	private JTextField txtClosePL;
 
-	public QuotePanel(Watchlist watchlist, Settings settings) {
+	public QuotePanel(InteractiveBrokersCore watchlist, Settings settings) {
 		setSize(750, 600);
 		setPreferredSize(new Dimension(750, 600));
 		setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));

@@ -46,4 +46,7 @@ public class Quote {
 		this.askSize = askSize;
 	}
 
+	public double getMidPrice() {
+		return (bid + ask) / 2;
+	}
 }

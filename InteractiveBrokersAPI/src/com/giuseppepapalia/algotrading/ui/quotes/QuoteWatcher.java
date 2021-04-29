@@ -9,17 +9,17 @@ import javax.swing.JTextField;
 import com.giuseppepapalia.algotrading.ibkr.CurrencyValue;
 import com.giuseppepapalia.algotrading.ibkr.Position;
 import com.giuseppepapalia.algotrading.ibkr.Quote;
-import com.giuseppepapalia.algotrading.ibkr.Watchlist;
+import com.giuseppepapalia.algotrading.ibkr.InteractiveBrokersCore;
 
 public class QuoteWatcher extends Thread {
 
-	private Watchlist watchlist;
+	private InteractiveBrokersCore watchlist;
 	private QuoteTableModel model;
 	private JTextField txtPL;
 	private JTextField txtClosePL;
 	private QuoteTable table;
 
-	public QuoteWatcher(Watchlist watchlist, QuoteTableModel model, QuoteTable table, JTextField txtPL, JTextField txtClosePL) {
+	public QuoteWatcher(InteractiveBrokersCore watchlist, QuoteTableModel model, QuoteTable table, JTextField txtPL, JTextField txtClosePL) {
 		this.watchlist = watchlist;
 		this.model = model;
 		this.txtPL = txtPL;

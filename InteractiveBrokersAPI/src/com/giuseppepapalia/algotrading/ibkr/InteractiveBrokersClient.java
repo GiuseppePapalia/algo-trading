@@ -4,7 +4,6 @@ import java.util.Date;
 
 import com.giuseppepapalia.algotrading.ibkr.constants.BarSize;
 import com.giuseppepapalia.algotrading.ibkr.constants.GFormatter;
-import com.giuseppepapalia.algotrading.ibkr.orderflow.LongBracketOrderFlow;
 import com.ib.client.Contract;
 import com.ib.client.EClientSocket;
 import com.ib.client.EReader;
@@ -17,8 +16,8 @@ public class InteractiveBrokersClient {
 	private InteractiveBrokersAPI api;
 	private int id;
 
-	public InteractiveBrokersClient(boolean liveTrading, String accID) {
-		api = new InteractiveBrokersAPI();
+	public InteractiveBrokersClient(boolean liveTrading, InteractiveBrokersCoreInterface core) {
+		api = new InteractiveBrokersAPI(core);
 
 		client = api.getClient();
 		final EReaderSignal m_signal = api.getSignal();
@@ -41,39 +40,42 @@ public class InteractiveBrokersClient {
 
 		addShutdownHook();
 
-		api.initPorfolio(accID);
-		client.reqPositions();
 		// client.reqAccountUpdates(true, accID);
+		// client.reqPnL(17001, portfolio.getAccID(), "");
+	}
+
+	public void init(String accID) {
+		client.reqAccountUpdates(true, accID);
 		client.reqPnL(17001, accID, "");
-		initWatchlist();
 		id = api.getCurrentOrderId();
 	}
 
-	public void watchStock(Contract contract) {
-		api.watchStock(id, contract);
-		client.reqRealTimeBars(id, contract, 5, "TRADES", true, null);
-		client.reqTickByTickData(id + 1, contract, "BidAsk", 0, false);
-		id += 2;
+	public int getOptionChain(Contract contract) {
+		client.reqContractDetails(id, InteractiveBrokersFactory.createMockOption(contract.symbol()));
+		id++;
+		return id - 1;
 	}
 
-	public void stopWatchingStock(Contract contract) {
-		int id = getWatchlist().stopWatching(contract);
+	public int watchStock(Contract contract) {
+		client.reqRealTimeBars(id, contract, 5, "TRADES", true, null);
+		client.reqTickByTickData(id + 1, contract, "BidAsk", 0, false);
+		client.reqContractDetails(id + 2, InteractiveBrokersFactory.createMockOption(contract.symbol()));
+		id += 3;
+		return id - 3;
+	}
+
+	public void stopWatchingStock(int reqId) {
 		client.cancelRealTimeBars(id);
 		client.cancelTickByTickData(id + 1);
 	}
 
-	public Watchlist getWatchlist() {
-		return api.getWatchlist();
-	}
-
-	public void placeLongBracketOrder(Contract contract, double quantity, double entryLimitPrice, double takeProfitLimitPrice, double stopLossPrice) {
-		LongBracketOrderFlow order = new LongBracketOrderFlow(id, quantity, entryLimitPrice, takeProfitLimitPrice, stopLossPrice);
-
-		for (Order o : order.getOrderFlow()) {
+	public int placeOrder(Contract contract, OrderFlow orderFlow) {
+		for (Order o : orderFlow.getOrderFlow()) {
 			client.placeOrder(o.orderId(), contract, o);
 		}
 
-		id += 3;
+		id += orderFlow.getSize();
+		return id - orderFlow.getSize();
 	}
 
 	public Chart getHistoricalData(Contract contract, Date endDate, String duration, BarSize barSize) {
@@ -84,15 +86,8 @@ public class InteractiveBrokersClient {
 		return api.getHistoricalData(reqId, contract);
 	}
 
-	public Portfolio getPortfolio() {
-		return api.getPortfolio();
-	}
-
-	private void initWatchlist() {
-		api.initWatchlist(this);
-		for (Position pos : getPortfolio().getPositions()) {
-			watchStock(pos.getContract());
-		}
+	public int getID() {
+		return id;
 	}
 
 	private void addShutdownHook() {
